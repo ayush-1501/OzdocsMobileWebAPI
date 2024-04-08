@@ -198,22 +198,19 @@ namespace OzdocsMobileWebAPI.Controllers
             }
         }
 
-        [HttpGet("GetDataByFilter")]
+        [HttpGet("GetEDNDataByFilter")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(EDNDocument))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
-        public IActionResult GetDataByFilter(DateTime? toDate, DateTime? fromDate, string? senderRef, string? edn)
+        public IActionResult GetEDNDataByFilter(DateTime? toDate, DateTime? fromDate, string? senderRef, string? edn)
         {
             Response response = new Response();
             DataTable retData;
             string json;
             try
             {
-                // Get only the date part of the DateTime parameters
-                 DateTime toDateDatePart = toDate?.Date ?? DateTime.MinValue;
-                DateTime fromDateDatePart = fromDate?.Date ?? DateTime.MinValue;
 
                 DataAccess dataAccess = new DataAccess(_configuration);
-                retData = dataAccess.GetDataByFilter(toDateDatePart, fromDateDatePart, senderRef, edn);
+                retData = dataAccess.GetEDNDataByFilter(toDate, fromDate, senderRef, edn);
                 oCreateLog.CreateLogFile(LogFilePath, "Getting all the EDN data ");
                 if (retData.Rows.Count > 0)
                 {

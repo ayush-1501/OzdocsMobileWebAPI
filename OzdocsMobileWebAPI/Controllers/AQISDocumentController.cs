@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using OzdocsMobileWebAPI.CreateLogFiles;
 using OzdocsMobileWebAPI.DataAccessLayer;
 using OzdocsMobileWebAPI.Models;
 using System.Data;
@@ -139,6 +140,39 @@ namespace OzdocsMobileWebAPI.Controllers
                 DataAccess dataAccess = new DataAccess(_configuration);
                 retData = dataAccess.GetAQISDocumentData(Id);
 
+                if (retData.Rows.Count > 0)
+                {
+                    json = JsonConvert.SerializeObject(retData, Formatting.Indented);
+                    return Ok(json);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = "0";
+                response.Message = ex.Message;
+                if (ex.StackTrace is not null)
+                    response.Data = ex.StackTrace.ToString();
+                return NotFound(response);
+            }
+        }
+
+        [HttpGet("GetAQISDataByFilter")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(AQISDocument))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+        public IActionResult GetAQISDataByFilter(DateTime? toDate, DateTime? fromDate, string? AQISId, string? RFPNo)
+        {
+            Response response = new Response();
+            DataTable retData;
+            string json;
+            try
+            {
+               
+                DataAccess dataAccess = new DataAccess(_configuration);
+                retData = dataAccess.GetAQISDataByFilter(toDate, fromDate, AQISId, RFPNo);
                 if (retData.Rows.Count > 0)
                 {
                     json = JsonConvert.SerializeObject(retData, Formatting.Indented);

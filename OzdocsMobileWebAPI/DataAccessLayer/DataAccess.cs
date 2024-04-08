@@ -179,23 +179,23 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
         {
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblEDNDocument\" where \"EdndocsId\" = '" + EdndocsId + "' and \"Version\"='" + Version + "' and \"OfficeId\"='" + OfficeId + "'");
         }
-        internal DataTable GetDataByFilter(DateTime? toDate, DateTime? fromDate, string? senderRef, string? edn)
+        internal DataTable GetEDNDataByFilter(DateTime? toDate, DateTime? fromDate, string? senderRef, string? edn)
         {
             StringBuilder queryBuilder = new StringBuilder("SELECT * FROM ");
             queryBuilder.Append(sSchemas).Append(".").Append("\"tblEDNDocument\" WHERE 1=1");
 
-            // If toDate is null but fromDate is provided, set toDate equal to fromDate
+          
             if (toDate == null && fromDate != null)
             {
                 toDate = fromDate;
             }
-            // If fromDate is null but toDate is provided, set fromDate equal to toDate
+           
             else if (fromDate == null && toDate != null)
             {
                 fromDate = toDate;
             }
 
-            // If both toDate and fromDate are provided, construct a date range condition
+         
             if (toDate != null && fromDate != null)
             {
                 DateTime toDateValue = toDate.Value.Date;
@@ -207,17 +207,21 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                             .Append("'");
             }
 
-            // If senderRef is provided, add a condition to filter records based on it
+
             if (!string.IsNullOrEmpty(senderRef))
             {
-                queryBuilder.Append(" AND \"SenderRef\" = '").Append(senderRef).Append("'");
+                
+                string trimmedSenderRef = senderRef.Trim();
+                queryBuilder.Append(" AND \"SenderRef\" = '").Append(trimmedSenderRef).Append("'");
             }
-
-            // If edn is provided, add a condition to filter records based on it
+           
             if (!string.IsNullOrEmpty(edn))
             {
-                queryBuilder.Append(" AND \"EDN\" = '").Append(edn).Append("'");
+               
+                string trimmedEdn = edn.Trim();
+                queryBuilder.Append(" AND \"EDN\" = '").Append(trimmedEdn).Append("'");
             }
+           
 
             string query = queryBuilder.ToString();
             return RunQuery(query);
@@ -403,7 +407,48 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
         {
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblPRADocument\" where \"PradocsId\" = '" + PradocsId + "' and \"Version\"='" + Version + "' and \"OfficeId\"='" + OfficeId + "'");
         }
+        internal DataTable GetPRADataByFilter(DateTime? toDate, DateTime? fromDate, string? OneStopRef, string? ShipperRef)
+        {
+            StringBuilder queryBuilder = new StringBuilder("SELECT * FROM ");
+            queryBuilder.Append(sSchemas).Append(".").Append("\"tblPRADocument\" WHERE 1=1");
 
+
+            if (toDate == null && fromDate != null)
+            {
+                toDate = fromDate;
+            }
+
+            else if (fromDate == null && toDate != null)
+            {
+                fromDate = toDate;
+            }
+
+
+            if (toDate != null && fromDate != null)
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                DateTime fromDateValue = fromDate.Value.Date;
+                queryBuilder.Append(" AND CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                            .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                            .Append("' AND '")
+                            .Append(toDateValue.ToString("yyyy-MM-dd"))
+                            .Append("'");
+            }
+
+            
+            if (!string.IsNullOrEmpty(OneStopRef))
+            {
+                queryBuilder.Append(" AND \"OneStopRef\" = '").Append(OneStopRef).Append("'");
+            }
+
+            if (!string.IsNullOrEmpty(ShipperRef))
+            {
+                queryBuilder.Append(" AND \"ShippersRef\" = '").Append(ShipperRef).Append("'");
+            }
+
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
         internal int SavePRAData(PRADocument oPRA)
         {
             var timestamp = DateTime.UtcNow;
@@ -766,7 +811,49 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
         {
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblAQISDocument\" where \"AQISId\" = '" + AQISId + "' and \"Version\"='" + Version + "' and \"OfficeId\"='" + OfficeId + "'");
         }
+        internal DataTable GetAQISDataByFilter(DateTime? toDate, DateTime? fromDate, string? AQISId, string? RFPNo)
+        {
+            StringBuilder queryBuilder = new StringBuilder("SELECT * FROM ");
+            queryBuilder.Append(sSchemas).Append(".").Append("\"tblAQISDocument\" WHERE 1=1");
 
+
+            if (toDate == null && fromDate != null)
+            {
+                toDate = fromDate;
+            }
+
+            else if (fromDate == null && toDate != null)
+            {
+                fromDate = toDate;
+            }
+
+
+            if (toDate != null && fromDate != null)
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                DateTime fromDateValue = fromDate.Value.Date;
+                queryBuilder.Append(" AND CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                            .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                            .Append("' AND '")
+                            .Append(toDateValue.ToString("yyyy-MM-dd"))
+                            .Append("'");
+            }
+
+           
+            if (!string.IsNullOrEmpty(AQISId))
+            {
+                queryBuilder.Append(" AND \"AQISId\" = '").Append(AQISId).Append("'");
+            }
+            
+
+            if (!string.IsNullOrEmpty(RFPNo))
+            {
+                queryBuilder.Append(" AND \"Noin\" = '").Append(RFPNo).Append("'");
+            }
+
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
         internal int SaveAQISData(AQISDocument oAQIS)
         {
             var timestamp = DateTime.UtcNow;
