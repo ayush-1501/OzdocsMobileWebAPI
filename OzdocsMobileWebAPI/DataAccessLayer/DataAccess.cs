@@ -221,8 +221,8 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                 string trimmedEdn = edn.Trim();
                 queryBuilder.Append(" AND \"EDN\" = '").Append(trimmedEdn).Append("'");
             }
-           
 
+           
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -445,7 +445,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             {
                 queryBuilder.Append(" AND \"ShippersRef\" = '").Append(ShipperRef).Append("'");
             }
-
+           
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -850,7 +850,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             {
                 queryBuilder.Append(" AND \"Noin\" = '").Append(RFPNo).Append("'");
             }
-
+          
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
