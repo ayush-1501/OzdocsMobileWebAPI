@@ -193,5 +193,38 @@ namespace OzdocsMobileWebAPI.Controllers
                 return NotFound(response);
             }
         }
+
+        [HttpGet("GetPRADataRecordCount")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(PRADocument))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+        public IActionResult GetPRADataRecordCount(DateTime? toDate, DateTime? fromDate, string? TypeOfQuery, string? Id)
+        {
+            Response response = new Response();
+            DataTable retData;
+            string json;
+            try
+            {
+                DataAccess dataAccess = new DataAccess(_configuration);
+                retData = dataAccess.GetPRADocumentRecordCount(toDate, fromDate, TypeOfQuery, Id);
+
+                if (retData.Rows.Count > 0)
+                {
+                    json = JsonConvert.SerializeObject(retData, Formatting.Indented);
+                    return Ok(json);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = "0";
+                response.Message = ex.Message;
+                if (ex.StackTrace is not null)
+                    response.Data = ex.StackTrace.ToString();
+                return NotFound(response);
+            }
+        }
     }
 }

@@ -122,11 +122,13 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
             if (!string.IsNullOrEmpty(DocumentId))
             {
-                queryBuilder.Append(" AND \"DocumentId\" = '").Append(DocumentId).Append("'");
+                string trimmedDocumentId = DocumentId.Trim();
+                queryBuilder.Append(" AND \"DocumentId\" = '").Append(trimmedDocumentId).Append("'");
             }
 
             if (!string.IsNullOrEmpty(InvoiceNo))
             {
+                InvoiceNo = InvoiceNo.Trim();
                 queryBuilder.Append(" AND \"InvoiceNo\" = '").Append(InvoiceNo).Append("'");
             }
 
@@ -153,10 +155,12 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             }
             if (!string.IsNullOrEmpty(Exporter))
             {
+                Exporter = Exporter.Trim();
                 queryBuilder.Append(" AND \"Exporter\" = '").Append(Exporter).Append("'");
             }
             if (!string.IsNullOrEmpty(Edn))
             {
+                Edn = Edn.Trim();
                 queryBuilder.Append(" AND \"EDN\" = '").Append(Edn).Append("'");
             }
             string query = queryBuilder.ToString();
@@ -202,6 +206,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             }
             else if(TypeOfQuery == "OFFICEID")
             {
+                Id = Id.Trim();
                 queryBuilder.Append("SELECT COUNT(*) FROM ")
                             .Append(sSchemas)
                             .Append(".\"tblMasterDocument\" ")
@@ -367,7 +372,62 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             return RunQuery(query);
         }
 
+        internal DataTable GetEDNDocumentRecordCount(DateTime? toDate, DateTime? fromDate, string? TypeOfQuery, string? Id)
+        {
+            StringBuilder queryBuilder = new StringBuilder();
 
+            if (TypeOfQuery == "DATE")
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblEDNDocument\" WHERE CAST(\"RequestDate\" AS DATE) = '")
+                   .Append(toDateValue.ToString("yyyy-MM-dd"))
+                   .Append("'");
+
+            }
+            else if (TypeOfQuery == "DATERANGE")
+            {
+                if (toDate == null && fromDate != null)
+                {
+                    toDate = fromDate;
+                }
+
+                else if (fromDate == null && toDate != null)
+                {
+                    fromDate = toDate;
+                }
+
+
+                if (toDate != null && fromDate != null)
+                {
+                    DateTime toDateValue = toDate.Value.Date;
+                    DateTime fromDateValue = fromDate.Value.Date;
+                    queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblEDNDocument\" WHERE CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                                .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                                .Append("' AND '")
+                                .Append(toDateValue.ToString("yyyy-MM-dd"))
+                                .Append("'");
+                }
+            }
+            else if (TypeOfQuery == "OFFICEID")
+            {
+                string trimmedId = Id.Trim();
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblEDNDocument\" ")
+                            .Append("WHERE \"OfficeId\" = '")
+                            .Append(trimmedId)
+                            .Append("'");
+
+            }
+            else
+            {
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblEDNDocument\" ");
+            }
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
 
         internal int SaveEDNData(EDNDocument oEDN)
         {
@@ -577,15 +637,74 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
             
             if (!string.IsNullOrEmpty(OneStopRef))
-            {
+            {   
+                OneStopRef = OneStopRef.Trim();
                 queryBuilder.Append(" AND \"OneStopRef\" = '").Append(OneStopRef).Append("'");
             }
 
             if (!string.IsNullOrEmpty(ShipperRef))
-            {
+            {   
+                ShipperRef = ShipperRef.Trim();
                 queryBuilder.Append(" AND \"ShippersRef\" = '").Append(ShipperRef).Append("'");
             }
            
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
+
+        internal DataTable GetPRADocumentRecordCount(DateTime? toDate, DateTime? fromDate, string? TypeOfQuery, string? Id)
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+
+            if (TypeOfQuery == "DATE")
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblPRADocument\" WHERE CAST(\"RequestDate\" AS DATE) = '")
+                   .Append(toDateValue.ToString("yyyy-MM-dd"))
+                   .Append("'");
+
+            }
+            else if (TypeOfQuery == "DATERANGE")
+            {
+                if (toDate == null && fromDate != null)
+                {
+                    toDate = fromDate;
+                }
+
+                else if (fromDate == null && toDate != null)
+                {
+                    fromDate = toDate;
+                }
+
+
+                if (toDate != null && fromDate != null)
+                {
+                    DateTime toDateValue = toDate.Value.Date;
+                    DateTime fromDateValue = fromDate.Value.Date;
+                    queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblPRADocument\" WHERE CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                                .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                                .Append("' AND '")
+                                .Append(toDateValue.ToString("yyyy-MM-dd"))
+                                .Append("'");
+                }
+            }
+            else if (TypeOfQuery == "OFFICEID")
+            {
+                Id = Id.Trim();
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblPRADocument\" ")
+                            .Append("WHERE \"OfficeId\" = '")
+                            .Append(Id)
+                            .Append("'");
+
+            }
+            else
+            {
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblPRADocument\" ");
+            }
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -982,15 +1101,74 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
            
             if (!string.IsNullOrEmpty(AQISId))
             {
+                AQISId=AQISId.Trim();
                 queryBuilder.Append(" AND \"AQISId\" = '").Append(AQISId).Append("'");
             }
             
 
             if (!string.IsNullOrEmpty(RFPNo))
             {
+                RFPNo=RFPNo.Trim(); 
                 queryBuilder.Append(" AND \"Noin\" = '").Append(RFPNo).Append("'");
             }
           
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
+
+        internal DataTable GetAQISDocumentRecordCount(DateTime? toDate, DateTime? fromDate, string? TypeOfQuery, string? Id)
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+
+            if (TypeOfQuery == "DATE")
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblAQISDocument\" WHERE CAST(\"RequestDate\" AS DATE) = '")
+                   .Append(toDateValue.ToString("yyyy-MM-dd"))
+                   .Append("'");
+
+            }
+            else if (TypeOfQuery == "DATERANGE")
+            {
+                if (toDate == null && fromDate != null)
+                {
+                    toDate = fromDate;
+                }
+
+                else if (fromDate == null && toDate != null)
+                {
+                    fromDate = toDate;
+                }
+
+
+                if (toDate != null && fromDate != null)
+                {
+                    DateTime toDateValue = toDate.Value.Date;
+                    DateTime fromDateValue = fromDate.Value.Date;
+                    queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblAQISDocument\" WHERE CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                                .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                                .Append("' AND '")
+                                .Append(toDateValue.ToString("yyyy-MM-dd"))
+                                .Append("'");
+                }
+            }
+            else if (TypeOfQuery == "OFFICEID")
+            {
+                Id = Id.Trim();
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblAQISDocument\" ")
+                            .Append("WHERE \"OfficeId\" = '")
+                            .Append(Id)
+                            .Append("'");
+
+            }
+            else
+            {
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblAQISDocument\" ");
+            }
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
