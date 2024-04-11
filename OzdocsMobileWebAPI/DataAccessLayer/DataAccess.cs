@@ -7,6 +7,7 @@ using OzdocsMobileWebAPI.Models;
 using System.Windows.Input;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
+using System.Reflection.Metadata;
 
 namespace OzdocsMobileWebAPI.DataAccessLayer
 {
@@ -84,6 +85,140 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblMasterDocument\" where \"Id\" = " + Id);
         }
 
+        internal DataTable IsMasterDocumentExist(string MasterId, int Version, string OfficeId)
+        {
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblMasterDocument\" where \"DocumentId\" = '" + MasterId + "' and \"Version\"='" + Version + "' and \"OfficeId\"='" + OfficeId + "'");
+        }
+
+       
+        internal DataTable GetMasterDocumentByFilter(DateTime? toDate, DateTime? fromDate, string? DocumentId, string? InvoiceNo, DateTime? ToInvoice, DateTime? FromInvoice, string? Exporter, string? Edn)
+        {
+            StringBuilder queryBuilder = new StringBuilder("SELECT * FROM ");
+            queryBuilder.Append(sSchemas).Append(".").Append("\"tblMasterDocument\" WHERE 1=1");
+
+
+            if (toDate == null && fromDate != null)
+            {
+                toDate = fromDate;
+            }
+
+            else if (fromDate == null && toDate != null)
+            {
+                fromDate = toDate;
+            }
+
+
+            if (toDate != null && fromDate != null)
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                DateTime fromDateValue = fromDate.Value.Date;
+                queryBuilder.Append(" AND CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                            .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                            .Append("' AND '")
+                            .Append(toDateValue.ToString("yyyy-MM-dd"))
+                            .Append("'");
+            }
+
+
+            if (!string.IsNullOrEmpty(DocumentId))
+            {
+                queryBuilder.Append(" AND \"DocumentId\" = '").Append(DocumentId).Append("'");
+            }
+
+            if (!string.IsNullOrEmpty(InvoiceNo))
+            {
+                queryBuilder.Append(" AND \"InvoiceNo\" = '").Append(InvoiceNo).Append("'");
+            }
+
+            if (ToInvoice == null && FromInvoice != null)
+            {
+                ToInvoice = FromInvoice;
+            }
+
+            else if (FromInvoice == null && ToInvoice != null)
+            {
+                FromInvoice = ToInvoice;
+            }
+
+
+            if (ToInvoice != null && FromInvoice != null)
+            {
+                DateTime toDateValue = ToInvoice.Value.Date;
+                DateTime fromDateValue = FromInvoice.Value.Date;
+                queryBuilder.Append(" AND CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                            .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                            .Append("' AND '")
+                            .Append(toDateValue.ToString("yyyy-MM-dd"))
+                            .Append("'");
+            }
+            if (!string.IsNullOrEmpty(Exporter))
+            {
+                queryBuilder.Append(" AND \"Exporter\" = '").Append(Exporter).Append("'");
+            }
+            if (!string.IsNullOrEmpty(Edn))
+            {
+                queryBuilder.Append(" AND \"EDN\" = '").Append(Edn).Append("'");
+            }
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
+
+
+        internal DataTable GetMasterDocumentRecordCount(DateTime? toDate, DateTime? fromDate, string? TypeOfQuery, string? Id)
+        {
+            StringBuilder queryBuilder = new StringBuilder();
+
+            if(TypeOfQuery == "DATE")
+            {
+                DateTime toDateValue = toDate.Value.Date;
+                queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblMasterDocument\" WHERE CAST(\"RequestDate\" AS DATE) = '")
+                   .Append(toDateValue.ToString("yyyy-MM-dd"))
+                   .Append("'");
+               
+            }
+            else if(TypeOfQuery == "DATERANGE")
+            {
+                if (toDate == null && fromDate != null)
+                {
+                    toDate = fromDate;
+                }
+
+                else if (fromDate == null && toDate != null)
+                {
+                    fromDate = toDate;
+                }
+
+
+                if (toDate != null && fromDate != null)
+                {
+                    DateTime toDateValue = toDate.Value.Date;
+                    DateTime fromDateValue = fromDate.Value.Date;
+                    queryBuilder.Append("SELECT COUNT(*) FROM " + sSchemas + "." + "\"tblMasterDocument\" WHERE CAST(\"RequestDate\" AS DATE) BETWEEN '")
+                                .Append(fromDateValue.ToString("yyyy-MM-dd"))
+                                .Append("' AND '")
+                                .Append(toDateValue.ToString("yyyy-MM-dd"))
+                                .Append("'");
+                }
+            }
+            else if(TypeOfQuery == "OFFICEID")
+            {
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblMasterDocument\" ")
+                            .Append("WHERE \"OfficeId\" = '")
+                            .Append(Id) 
+                            .Append("'");
+                 
+            }
+            else
+            {
+                queryBuilder.Append("SELECT COUNT(*) FROM ")
+                            .Append(sSchemas)
+                            .Append(".\"tblMasterDocument\" ");
+            }
+            string query = queryBuilder.ToString();
+            return RunQuery(query);
+        }
         internal int SaveMasterData(Master omaster)
         {
             var timestamp = DateTime.UtcNow;
@@ -91,12 +226,11 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             using (NpgsqlConnection conn = new NpgsqlConnection(pgdbconnection))
             {
                 conn.Open();
-                
-                string sQuery = "INSERT INTO " + sSchemas + "." + "\"tblMasterDocument\" (\"OfficeId\", \"DocumentId\", \"ReferenceId\", \"Exporter\", \"Consignee\", \"Buyer\", \"InvoiceValue\", \"InvoiceNo\", \"InvoiceDate\", \"Currency\", \"DocumentStatus\", \"EDNStatus\", \"EDN\", \"Details\", \"ExporterRef\", \"BuyerRef\", \"MUserId\", \"RequestDate\", \"RequestTime\") VALUES (:OfficeId, :DocumentId, :ReferenceId, :Exporter, :Consignee, :Buyer, :InvoiceValue, :InvoiceNo, :InvoiceDate, :Currency, :DocumentStatus, :EDNStatus, :EDN, :Details, :ExporterRef, :BuyerRef, :MUserId, :RequestDate, :RequestTime) RETURNING \"Id\"";
-               
+
+                string sQuery = "INSERT INTO " + sSchemas + "." + "\"tblMasterDocument\" (\"OfficeId\", \"DocumentId\", \"ReferenceId\", \"Exporter\", \"Consignee\", \"Buyer\", \"InvoiceValue\", \"InvoiceNo\", \"InvoiceDate\", \"Currency\", \"DocumentStatus\", \"EDNStatus\", \"EDN\", \"Details\", \"ExporterRef\", \"BuyerRef\", \"MUserId\", \"RequestDate\", \"RequestTime\", \"Version\", \"CreationDate\", \"RevisionDate\") VALUES (:OfficeId, :DocumentId, :ReferenceId, :Exporter, :Consignee, :Buyer, :InvoiceValue, :InvoiceNo, :InvoiceDate, :Currency, :DocumentStatus, :EDNStatus, :EDN, :Details, :ExporterRef, :BuyerRef, :MUserId, :RequestDate, :RequestTime, :Version, :CreationDate, :RevisionDate) RETURNING \"Id\"";
+
                 using (NpgsqlCommand cmd = new NpgsqlCommand(sQuery, conn))
                 {
-
                     DateTime now = DateTime.Now;
                     cmd.Parameters.AddWithValue("RequestTime", now);
 
@@ -105,6 +239,9 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                     cmd.Parameters.AddWithValue("OfficeId", omaster.OfficeId);
                     cmd.Parameters.AddWithValue("DocumentId", omaster.DocumentId);
                     cmd.Parameters.AddWithValue("ReferenceId", omaster.ReferenceId);
+
+                    cmd.Parameters.AddWithValue("Version", omaster.Version);
+
                     cmd.Parameters.AddWithValue("Exporter", omaster.Exporter);
                     cmd.Parameters.AddWithValue("Consignee", omaster.Consignee);
                     cmd.Parameters.AddWithValue("Buyer", omaster.Buyer);
@@ -112,7 +249,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                     cmd.Parameters.AddWithValue("Currency", omaster.Currency);
                     cmd.Parameters.AddWithValue("InvoiceNo", omaster.InvoiceNo);
                     cmd.Parameters.AddWithValue("InvoiceDate", omaster.InvoiceDate);
-                    
+
                     cmd.Parameters.AddWithValue("DocumentStatus", omaster.DocumentStatus);
                     cmd.Parameters.AddWithValue("EDNStatus", omaster.EDNStatus);
                     cmd.Parameters.AddWithValue("EDN", omaster.EDN);
@@ -121,6 +258,9 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                     cmd.Parameters.AddWithValue("ExporterRef", omaster.ExporterRef);
                     cmd.Parameters.AddWithValue("BuyerRef", omaster.BuyerRef);
                     cmd.Parameters.AddWithValue("MUserId", omaster.MUserId);
+
+                    cmd.Parameters.AddWithValue("CreationDate", omaster.CreationDate);
+                    cmd.Parameters.AddWithValue("RevisionDate", omaster.RevisionDate);
 
 
                     //try
@@ -137,14 +277,14 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                     }
                     //catch (Exception oEx)
                     //{
-                        //ErrorMessage = oEx.Message;
+                    //ErrorMessage = oEx.Message;
 
-                        //oCreateLog.CreateLogFile(LogFilePath, oEx.StackTrace.ToString());
+                    //oCreateLog.CreateLogFile(LogFilePath, oEx.StackTrace.ToString());
 
-                        //oResponseMsg.Status = "Error";
-                        //oResponseMsg.ErrorMsg = oEx.Message;
-                        //oResponseMsg.ResponseDateTime = DateTime.Now;
-                        return -1; // Return -1 if the insertion was unsuccessful
+                    //oResponseMsg.Status = "Error";
+                    //oResponseMsg.ErrorMsg = oEx.Message;
+                    //oResponseMsg.ResponseDateTime = DateTime.Now;
+                    return -1; // Return -1 if the insertion was unsuccessful
                     //}
                 }
             }

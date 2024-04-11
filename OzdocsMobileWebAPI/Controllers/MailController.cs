@@ -9,10 +9,10 @@ namespace OzdocsMobileWebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EmailController : ControllerBase
+    public class MailController : ControllerBase
     {
         [HttpPost("SendMail")]
-        public IActionResult SendEmail(string feedback) // Change parameter type to string
+        public IActionResult SendEmail(string feedback) 
         {
             try
             {
