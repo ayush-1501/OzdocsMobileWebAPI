@@ -70,6 +70,47 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             }
         }
 
+        internal DataTable GetUserData()
+        {
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\"");
+        }
+
+        internal DataTable GetUserData(string OrgId)
+        {
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\" where \"OrgId\" = '" + OrgId + "'");
+        }
+
+        internal string SaveUserData(User oUser)
+        {
+            var timestamp = DateTime.UtcNow;
+
+            using (NpgsqlConnection conn = new NpgsqlConnection(pgdbconnection))
+            {
+                conn.Open();
+
+                string sQuery = "INSERT INTO " + sSchemas + "." + "\"tblUser\" (\"OrgId\", \"UserId\", \"Password\") VALUES (:OrgId, :UserId, :Password) RETURNING \"OrgId\"";
+
+                using (NpgsqlCommand cmd = new NpgsqlCommand(sQuery, conn))
+                {
+                    DateTime now = DateTime.Now;
+
+                    cmd.Parameters.AddWithValue("OrgId", oUser.OrgId);
+                    cmd.Parameters.AddWithValue("UserId", oUser.UserId);
+                    cmd.Parameters.AddWithValue("Password", oUser.Password);
+
+                    {
+                        Object _result = cmd.ExecuteScalar();
+
+                        if (_result != null && _result != DBNull.Value)
+                        {
+                            return (string)_result;
+                        }
+                        return null;
+                    }
+                }
+            }
+        }
+
         internal DataTable GetMasterDocumentData()
         {
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblMasterDocument\"");

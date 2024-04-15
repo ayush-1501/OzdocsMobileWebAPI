@@ -12,6 +12,7 @@ namespace OzdocsMobileWebAPI.Controllers
     public class MailController : ControllerBase
     {
         [HttpPost("SendMail")]
+
         public IActionResult SendEmail(string feedback) 
         {
             try
