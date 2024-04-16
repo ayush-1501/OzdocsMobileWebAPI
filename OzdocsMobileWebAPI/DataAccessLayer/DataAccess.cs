@@ -75,10 +75,77 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\"");
         }
 
-        internal DataTable GetUserData(string OrgId)
+        internal DataTable GetUserDataById(int Id)
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\" where \"OrgId\" = '" + OrgId + "'");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\" where \"Id\" = '" + Id + "'");
         }
+
+
+        internal DataTable UpdateUserDataById(int Id, string Password, string UserId, string OrgName)
+        {
+            // SQL query to update the tblUser with the provided Id, Password, UserId, and OrgName
+            string updateQuery = $"UPDATE {sSchemas}.\"tblUser\" SET \"Password\" = @Password, \"UserId\" = @UserId, \"OrgId\" = @OrgName WHERE \"Id\" = @Id";
+
+            // Create a DataTable to hold the result
+            DataTable dataTable = new DataTable();
+
+            // Create a connection and execute the queries
+            using (NpgsqlConnection conn = new NpgsqlConnection(pgdbconnection))
+            {
+                conn.Open();
+
+                using (NpgsqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Update the user data
+                        using (NpgsqlCommand updateCmd = new NpgsqlCommand(updateQuery, conn))
+                        {
+                            // Add parameters for the update query
+                            updateCmd.Parameters.AddWithValue("@Id", Id);
+                            updateCmd.Parameters.AddWithValue("@Password", Password);
+                            updateCmd.Parameters.AddWithValue("@UserId", UserId);
+                            updateCmd.Parameters.AddWithValue("@OrgName", OrgName);
+
+                            // Set the transaction for the command
+                            updateCmd.Transaction = transaction;
+
+                            // Execute the update command
+                            int rowsAffected = updateCmd.ExecuteNonQuery();
+
+                            // Check if any rows were updated
+                            if (rowsAffected == 0)
+                            {
+                                throw new Exception("No rows were updated. Verify the provided Id exists.");
+                            }
+                        }
+
+                        // Retrieve the updated data
+                        string selectQuery = $"SELECT * FROM {sSchemas}.\"tblUser\" WHERE \"Id\" = @Id";
+                        using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(selectQuery, conn))
+                        {
+                            adapter.SelectCommand.Parameters.AddWithValue("@Id", Id);
+                            adapter.Fill(dataTable);
+                        }
+
+                        // Commit the transaction
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        // If an error occurs, roll back the transaction
+                        transaction.Rollback();
+                        Console.WriteLine("An error occurred during the update operation: " + ex.Message);
+                        throw;
+                    }
+                }
+            }
+
+            // Return the DataTable with the updated data
+            return dataTable;
+        }
+
+
 
         internal string SaveUserData(User oUser)
         {

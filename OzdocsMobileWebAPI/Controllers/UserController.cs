@@ -79,10 +79,10 @@ namespace OzdocsMobileWebAPI.Controllers
             }
         }
 
-        [HttpGet("GetUserDataByOrgId")]
+        [HttpGet("GetUserDataById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
-        public IActionResult GetUserByOrgId(string OrgId)
+        public IActionResult GetUserById(int Id)
         {
             Response response = new Response();
             DataTable retData;
@@ -90,7 +90,41 @@ namespace OzdocsMobileWebAPI.Controllers
             try
             {
                 DataAccess dataAccess = new DataAccess(_configuration);
-                retData = dataAccess.GetUserData(OrgId);
+                retData = dataAccess.GetUserDataById(Id);
+
+                if (retData.Rows.Count > 0)
+                {
+                    json = JsonConvert.SerializeObject(retData, Formatting.Indented);
+                    return Ok(json);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = "0";
+                response.Message = ex.Message;
+                if (ex.StackTrace is not null)
+                    response.Data = ex.StackTrace.ToString();
+                return NotFound(response);
+            }
+        }
+
+
+        [HttpGet("UpdateUserDataById")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(User))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+        public IActionResult UpdateUserById(int Id,string password,string UserId,string OrgName)
+        {
+            Response response = new Response();
+            DataTable retData;
+            string json;
+            try
+            {
+                DataAccess dataAccess = new DataAccess(_configuration);
+                retData = dataAccess.UpdateUserDataById(Id,password,UserId,OrgName);
 
                 if (retData.Rows.Count > 0)
                 {
