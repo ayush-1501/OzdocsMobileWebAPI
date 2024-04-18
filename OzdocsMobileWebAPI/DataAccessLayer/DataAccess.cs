@@ -31,12 +31,12 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetOrganisationData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblOrganisation\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblOrganisation\""+"ORDER BY \"Id\"");
         }
 
-        internal DataTable GetOrganisationData(string officeId)
+        internal DataTable GetOrganisationDataById(int Id)
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblOrganisation\" where \"OfficeId\" = '" + officeId + "'");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblOrganisation\" where \"Id\" = '" + Id + "'" + "ORDER BY \"Id\"");
         }
 
         internal int SaveOrganisationData(Organisation oOrganisation)
@@ -70,9 +70,72 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
             }
         }
 
+        internal DataTable UpdateOrgDataById(int Id, string CompanyName, string Email_Address)
+        {
+         
+            string updateQuery = $"UPDATE {sSchemas}.\"tblOrganisation\" SET  \"CompanyName\" = @CompanyName, \"Email_Address\" = @Email_Address WHERE \"Id\" = @Id";
+
+            // Create a DataTable to hold the result
+            DataTable dataTable = new DataTable();
+
+            // Create a connection and execute the queries
+            using (NpgsqlConnection conn = new NpgsqlConnection(pgdbconnection))
+            {
+                conn.Open();
+
+                using (NpgsqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Update the user data
+                        using (NpgsqlCommand updateCmd = new NpgsqlCommand(updateQuery, conn))
+                        {
+                            // Add parameters for the update query
+                            updateCmd.Parameters.AddWithValue("@Id",Id);
+                            updateCmd.Parameters.AddWithValue("@CompanyName",CompanyName);
+                            updateCmd.Parameters.AddWithValue("@Email_Address",Email_Address);
+
+                            // Set the transaction for the command
+                            updateCmd.Transaction = transaction;
+
+                            // Execute the update command
+                            int rowsAffected = updateCmd.ExecuteNonQuery();
+
+                            // Check if any rows were updated
+                            if (rowsAffected == 0)
+                            {
+                                throw new Exception("No rows were updated. Verify the provided Id exists.");
+                            }
+                        }
+
+                        // Retrieve the updated data
+                        string selectQuery = $"SELECT * FROM {sSchemas}.\"tblOrganisation\" WHERE \"Id\" = @Id";
+                        using (NpgsqlDataAdapter adapter = new NpgsqlDataAdapter(selectQuery, conn))
+                        {
+                            adapter.SelectCommand.Parameters.AddWithValue("@Id", Id);
+                            adapter.Fill(dataTable);
+                        }
+
+                        // Commit the transaction
+                        transaction.Commit();
+                    }
+                    catch (Exception ex)
+                    {
+                        // If an error occurs, roll back the transaction
+                        transaction.Rollback();
+                        Console.WriteLine("An error occurred during the update operation: " + ex.Message);
+                        throw;
+                    }
+                }
+            }
+
+            // Return the DataTable with the updated data
+            return dataTable;
+        }
+
         internal DataTable GetUserData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblUser\""+"ORDER BY \"Id\"");
         }
 
         internal DataTable GetUserDataById(int Id)

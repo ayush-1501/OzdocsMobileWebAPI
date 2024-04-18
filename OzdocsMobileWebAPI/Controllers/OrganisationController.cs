@@ -79,10 +79,10 @@ namespace OzdocsMobileWebAPI.Controllers
             }
         }
 
-        [HttpGet("GetOrganisationDataByOfficeId")]
+        [HttpGet("GetOrganisationDataById")]
         [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Organisation))]
         [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
-        public IActionResult GetOrganisationDataByOfficeId(string officeId)
+        public IActionResult GetOrganisationDataById(int Id)
         {
             Response response = new Response();
             DataTable retData;
@@ -90,7 +90,40 @@ namespace OzdocsMobileWebAPI.Controllers
             try
             {
                 DataAccess dataAccess = new DataAccess(_configuration);
-                retData = dataAccess.GetOrganisationData(officeId);
+                retData = dataAccess.GetOrganisationDataById(Id);
+
+                if (retData.Rows.Count > 0)
+                {
+                    json = JsonConvert.SerializeObject(retData, Formatting.Indented);
+                    return Ok(json);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Success = "0";
+                response.Message = ex.Message;
+                if (ex.StackTrace is not null)
+                    response.Data = ex.StackTrace.ToString();
+                return NotFound(response);
+            }
+        }
+
+        [HttpGet("UpdateOrganisationDataById")]
+        [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(Organisation))]
+        [ProducesResponseType(StatusCodes.Status404NotFound, Type = typeof(Response))]
+        public IActionResult UpdateOrganisationById(int Id, string CompanyName, string Email_Address)
+        {
+            Response response = new Response();
+            DataTable retData;
+            string json;
+            try
+            {
+                DataAccess dataAccess = new DataAccess(_configuration);
+                retData = dataAccess.UpdateOrgDataById(Id, CompanyName, Email_Address);
 
                 if (retData.Rows.Count > 0)
                 {

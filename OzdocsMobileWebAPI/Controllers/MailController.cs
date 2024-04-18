@@ -23,7 +23,7 @@ namespace OzdocsMobileWebAPI.Controllers
                 }
 
                 string fromAddress = "ayushdel15@gmail.com";
-                string toAddress = "ayushstarc@gmail.com";
+                string toAddress = "vijaykant@ozdocs.co.in";
                 string fromPassword = "xmro mldw wfgg qhne";
 
                 MailMessage message = new MailMessage();
