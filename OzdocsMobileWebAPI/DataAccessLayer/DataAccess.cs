@@ -243,7 +243,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetMasterDocumentData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblMasterDocument\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblMasterDocument\"" + "ORDER BY \"Id\"");
         }
 
         internal DataTable GetMasterDocumentData(string officeId)
@@ -334,6 +334,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                 Edn = Edn.Trim();
                 queryBuilder.Append(" AND \"EDN\" = '").Append(Edn).Append("'");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -392,6 +393,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                             .Append(sSchemas)
                             .Append(".\"tblMasterDocument\" ");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -471,7 +473,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetEDNDocumentData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblEDNDocument\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblEDNDocument\"" + "ORDER BY \"Id\"");
         }
         internal DataTable GetEDNDocumentDataWithoutContent()
         {
@@ -479,7 +481,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
         }
         internal DataTable GetEDNDocumentData(string officeId)
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblEDNDocument\" where \"OfficeId\" = '" + officeId + "'");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblEDNDocument\" where \"OfficeId\" = '" + officeId + "'" + "ORDER BY \"Id\"");
         }
         internal DataTable GetEDNDocumentDataWithoutContent(string officeId)
         {
@@ -537,8 +539,8 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                 string trimmedEdn = edn.Trim();
                 queryBuilder.Append(" AND \"EDN\" = '").Append(trimmedEdn).Append("'");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
 
-           
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -596,6 +598,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                             .Append(sSchemas)
                             .Append(".\"tblEDNDocument\" ");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -753,7 +756,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetPRADocumentData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblPRADocument\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblPRADocument\"" + "ORDER BY \"Id\"");
         }
         internal DataTable GetPRADocumentDataWithoutContent()
         {
@@ -762,7 +765,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetPRADocumentData(string officeId)
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblPRADocument\" where \"OfficeId\" = '" + officeId + "'");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblPRADocument\" where \"OfficeId\" = '" + officeId + "'" + "ORDER BY \"Id\"");
         }
         internal DataTable GetPRADocumentDataWithoutContent(string officeId)
         {
@@ -818,7 +821,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                 ShipperRef = ShipperRef.Trim();
                 queryBuilder.Append(" AND \"ShippersRef\" = '").Append(ShipperRef).Append("'");
             }
-           
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -876,6 +879,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                             .Append(sSchemas)
                             .Append(".\"tblPRADocument\" ");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -1217,7 +1221,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
 
         internal DataTable GetAQISDocumentData()
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblAQISDocument\"");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblAQISDocument\"" + "ORDER BY \"Id\"");
         }
         internal DataTable GetAQISDocumentDataWithoutContent()
         {
@@ -1225,7 +1229,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
         }
         internal DataTable GetAQISDocumentData(string officeId)
         {
-            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblAQISDocument\" where \"OfficeId\" = '" + officeId + "'");
+            return RunQuery("SELECT * FROM " + sSchemas + "." + "\"tblAQISDocument\" where \"OfficeId\" = '" + officeId + "'" + "ORDER BY \"Id\"");
         }
         internal DataTable GetAQISDocumentDataWithoutContent(string officeId)
         {
@@ -1282,7 +1286,8 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                 RFPNo=RFPNo.Trim(); 
                 queryBuilder.Append(" AND \"Noin\" = '").Append(RFPNo).Append("'");
             }
-          
+            queryBuilder.Append(" ORDER BY \"Id\"");
+
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
@@ -1340,6 +1345,7 @@ namespace OzdocsMobileWebAPI.DataAccessLayer
                             .Append(sSchemas)
                             .Append(".\"tblAQISDocument\" ");
             }
+            queryBuilder.Append(" ORDER BY \"Id\"");
             string query = queryBuilder.ToString();
             return RunQuery(query);
         }
